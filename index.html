@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Adept Pro Track Mate</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f7fb;
+      color: #1f2937;
+    }
+
+    header {
+      background: #ffffff;
+      border-bottom: 1px solid #e5e7eb;
+      padding: 18px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 22px;
+      font-weight: bold;
+      color: #2563eb;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
+
+    h1 {
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      color: #6b7280;
+      margin-bottom: 30px;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 22px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .card h3 {
+      margin-bottom: 12px;
+      font-size: 16px;
+    }
+
+    .number {
+      font-size: 32px;
+      font-weight: bold;
+      color: #2563eb;
+    }
+
+    .menu {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+    }
+
+    .menu button {
+      border: none;
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      text-align: left;
+      font-size: 17px;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      transition: 0.2s;
+    }
+
+    .menu button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .menu span {
+      display: block;
+      font-size: 30px;
+      margin-bottom: 12px;
+    }
+
+    footer {
+      text-align: center;
+      color: #9ca3af;
+      padding: 40px 20px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <div class="logo">Adept Pro Track Mate</div>
+    <div>Gestion des plannings</div>
+  </header>
+
+  <main class="container">
+
+    <h1>Tableau de bord</h1>
+
+    <p class="subtitle">
+      Gestion des plannings, tuteurs, nouveaux entrants et agences
+    </p>
+
+    <section class="cards">
+
+      <div class="card">
+        <h3>Nouveaux entrants</h3>
+        <div class="number">0</div>
+      </div>
+
+      <div class="card">
+        <h3>Tuteurs</h3>
+        <div class="number">0</div>
+      </div>
+
+      <div class="card">
+        <h3>Agences</h3>
+        <div class="number">0</div>
+      </div>
+
+      <div class="card">
+        <h3>Plannings</h3>
+        <div class="number">0</div>
+      </div>
+
+    </section>
+
+    <section class="menu">
+
+      <button onclick="alert('Module Nouveaux entrants')">
+        <span>👤</span>
+        <strong>Nouveaux entrants</strong>
+        <br>
+        Ajouter et gérer les nouveaux entrants
+      </button>
+
+      <button onclick="alert('Module Tuteurs')">
+        <span>🎓</span>
+        <strong>Tuteurs</strong>
+        <br>
+        Gérer les tuteurs disponibles
+      </button>
+
+      <button onclick="alert('Module Agences')">
+        <span>🏢</span>
+        <strong>Agences</strong>
+        <br>
+        Gérer les agences partenaires
+      </button>
+
+      <button onclick="alert('Module Planning')">
+        <span>📅</span>
+        <strong>Planning</strong>
+        <br>
+        Organiser et suivre les plannings
+      </button>
+
+    </section>
+
+  </main>
+
+  <footer>
+    Adept Pro Track Mate
+  </footer>
+
+</body>
+</html>
