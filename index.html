@@ -408,48 +408,258 @@ function ouvrirNouveauxEntrants() {
         fenetre.remove();
     });
 
-    document.getElementById("validerEntrant").addEventListener("click", function() {
+    function ouvrirNouveauxEntrants() {
 
-        const nom = document.getElementById("nomEntrant").value;
-        const date = document.getElementById("dateEntrant").value;
+    const fonctions = [
+        "Conducteur",
+        "Aide-livreur",
+        "Technicien de quai",
+        "Autre"
+    ];
 
-        const fonctionsSelectionnees =
-            Array.from(
-                document.querySelectorAll("#fonctionsEntrant input:checked")
-            ).map(input => input.value);
+    const agences = [
+        "Dol de Bretagne",
+        "Mont de Marsan",
+        "Tarascon",
+        "Fleury Merogis",
+        "Noisy le Gd",
+        "St Pierre de Chandieu",
+        "Vitry-en-Artois"
+    ];
 
-        if (!nom) {
-            alert("Merci de renseigner le nom et prénom.");
-            return;
-        }
+    const couleurs = {
+        "Dol de Bretagne": "#dbeafe",
+        "Mont de Marsan": "#dcfce7",
+        "Tarascon": "#fef3c7",
+        "Fleury Merogis": "#fce7f3",
+        "Noisy le Gd": "#ede9fe",
+        "St Pierre de Chandieu": "#ffedd5",
+        "Vitry-en-Artois": "#cffafe"
+    };
 
-        if (!date) {
-            alert("Merci de sélectionner la date d'entrée.");
-            return;
-        }
+    const formulaire = document.createElement("div");
 
-        if (fonctionsSelectionnees.length === 0) {
-            alert("Merci de sélectionner au moins une fonction.");
-            return;
-        }
+    formulaire.style.position = "fixed";
+    formulaire.style.top = "50%";
+    formulaire.style.left = "50%";
+    formulaire.style.transform = "translate(-50%, -50%)";
+    formulaire.style.background = "white";
+    formulaire.style.padding = "30px";
+    formulaire.style.borderRadius = "15px";
+    formulaire.style.boxShadow = "0 10px 40px rgba(0,0,0,0.3)";
+    formulaire.style.width = "450px";
+    formulaire.style.maxWidth = "90%";
+    formulaire.style.zIndex = "9999";
 
-        if (!agenceSelectionnee) {
-            alert("Merci de sélectionner une agence.");
-            return;
-        }
+    formulaire.innerHTML = `
+        <h2>Ajouter un nouvel entrant</h2>
 
-        alert(
-            "Nouvel entrant ajouté !\n\n" +
-            "Nom : " + nom + "\n" +
-            "Date d'entrée : " + date + "\n" +
-            "Fonction(s) : " + fonctionsSelectionnees.join(", ") + "\n" +
-            "Agence : " + agenceSelectionnee
-        );
+        <label><strong>Nom et prénom</strong></label>
+        <input id="nouvelEntrantNom"
+               type="text"
+               placeholder="Nom et prénom"
+               style="width:100%;padding:10px;margin:8px 0 18px;">
 
-        fenetre.remove();
+        <label><strong>Date d'entrée</strong></label>
+        <input id="nouvelEntrantDate"
+               type="date"
+               style="width:100%;padding:10px;margin:8px 0 18px;">
+
+        <label><strong>Fonction</strong></label>
+
+        <div id="choixFonction"
+             style="margin:10px 0 18px;">
+        </div>
+
+        <label><strong>Agence</strong></label>
+
+        <div id="choixAgence"
+             style="margin:10px 0 20px;">
+        </div>
+
+        <button id="validerNouvelEntrant"
+                style="padding:12px 20px;
+                       border:0;
+                       border-radius:8px;
+                       background:#2563eb;
+                       color:white;
+                       cursor:pointer;">
+            Ajouter
+        </button>
+
+        <button id="annulerNouvelEntrant"
+                style="padding:12px 20px;
+                       margin-left:10px;
+                       border:0;
+                       border-radius:8px;
+                       cursor:pointer;">
+            Annuler
+        </button>
+    `;
+
+    document.body.appendChild(formulaire);
+
+    const choixFonction =
+        formulaire.querySelector("#choixFonction");
+
+    fonctions.forEach(function(fonction) {
+
+        const bouton = document.createElement("button");
+
+        bouton.textContent = fonction;
+
+        bouton.type = "button";
+
+        bouton.style.padding = "10px 15px";
+        bouton.style.margin = "4px";
+        bouton.style.borderRadius = "8px";
+        bouton.style.border = "1px solid #ccc";
+        bouton.style.background = "white";
+        bouton.style.cursor = "pointer";
+
+        bouton.onclick = function() {
+
+            formulaire
+                .querySelectorAll(".fonctionChoisie")
+                .forEach(function(b) {
+                    b.classList.remove("fonctionChoisie");
+                    b.style.background = "white";
+                });
+
+            bouton.classList.add("fonctionChoisie");
+            bouton.style.background = "#bfdbfe";
+        };
+
+        choixFonction.appendChild(bouton);
     });
-}
 
+    const choixAgence =
+        formulaire.querySelector("#choixAgence");
+
+    agences.forEach(function(agence) {
+
+        const bouton = document.createElement("button");
+
+        bouton.textContent = agence;
+
+        bouton.type = "button";
+
+        bouton.style.display = "block";
+        bouton.style.width = "100%";
+        bouton.style.padding = "11px";
+        bouton.style.margin = "5px 0";
+        bouton.style.borderRadius = "8px";
+        bouton.style.border = "1px solid #ccc";
+        bouton.style.background = "white";
+        bouton.style.cursor = "pointer";
+        bouton.style.textAlign = "left";
+
+        bouton.onclick = function() {
+
+            formulaire
+                .querySelectorAll(".agenceChoisie")
+                .forEach(function(b) {
+                    b.classList.remove("agenceChoisie");
+                    b.style.background = "white";
+                });
+
+            bouton.classList.add("agenceChoisie");
+
+            bouton.style.background = couleurs[agence];
+        };
+
+        choixAgence.appendChild(bouton);
+    });
+
+    formulaire
+        .querySelector("#annulerNouvelEntrant")
+        .onclick = function() {
+            formulaire.remove();
+        };
+
+    formulaire
+        .querySelector("#validerNouvelEntrant")
+        .onclick = function() {
+
+            const nom =
+                formulaire
+                    .querySelector("#nouvelEntrantNom")
+                    .value.trim();
+
+            const date =
+                formulaire
+                    .querySelector("#nouvelEntrantDate")
+                    .value;
+
+            const fonctionBouton =
+                formulaire.querySelector(".fonctionChoisie");
+
+            const agenceBouton =
+                formulaire.querySelector(".agenceChoisie");
+
+            if (!nom) {
+                alert("Merci de renseigner le nom et prénom.");
+                return;
+            }
+
+            if (!date) {
+                alert("Merci de sélectionner la date d'entrée.");
+                return;
+            }
+
+            if (!fonctionBouton) {
+                alert("Merci de sélectionner une fonction.");
+                return;
+            }
+
+            if (!agenceBouton) {
+                alert("Merci de sélectionner une agence.");
+                return;
+            }
+
+            const fonction =
+                fonctionBouton.textContent;
+
+            const agence =
+                agenceBouton.textContent;
+
+            const nouvelEntrant = {
+                nom: nom,
+                date: date,
+                fonction: fonction,
+                agence: agence
+            };
+
+            let entrants =
+                JSON.parse(
+                    localStorage.getItem("nouveauxEntrants") || "[]"
+                );
+
+            entrants.push(nouvelEntrant);
+
+            localStorage.setItem(
+                "nouveauxEntrants",
+                JSON.stringify(entrants)
+            );
+
+            formulaire.remove();
+
+            alert(
+                "Nouvel entrant ajouté !\n\n" +
+                "Nom : " + nom + "\n" +
+                "Date d'entrée : " + date + "\n" +
+                "Fonction : " + fonction + "\n" +
+                "Agence : " + agence
+            );
+
+            const compteur =
+                document.querySelectorAll(".number")[0];
+
+            if (compteur) {
+                compteur.textContent = entrants.length;
+            }
+        };
+}
 function ouvrirTuteurs() {
     alert("Module Tuteurs");
 }
