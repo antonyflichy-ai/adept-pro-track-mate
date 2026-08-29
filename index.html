@@ -174,7 +174,49 @@
     <br>
     Gérer les agences partenaires
 </button>
+<div id="nouvelEntrant" style="display:none;">
 
+  <h3>Ajouter un nouvel entrant</h3>
+
+  <label>Nom et prénom :</label>
+  <input type="text" id="nomEntrant" placeholder="Nom et prénom">
+
+  <br><br>
+
+  <label>Date d'entrée :</label>
+  <input type="date" id="dateEntree">
+
+  <br><br>
+
+  <label>Fonction :</label>
+  <select id="fonctionEntrant">
+    <option value="">-- Choisir une fonction --</option>
+    <option>Aide-livreur</option>
+    <option>Conducteur</option>
+    <option>Conducteur PL</option>
+    <option>Manutentionnaire</option>
+    <option>Préparateur</option>
+  </select>
+
+  <br><br>
+
+  <label>Agence :</label>
+  <select id="agenceEntrant">
+    <option value="">-- Choisir une agence --</option>
+    <option>Dol de Bretagne</option>
+    <option>Mont de Marsan</option>
+    <option>Tarascon</option>
+    <option>Fleury Merogis</option>
+    <option>Noisy le Gd</option>
+    <option>St Pierre de Chandieu</option>
+    <option>Vitry-en-Artois</option>
+  </select>
+
+  <br><br>
+
+  <button onclick="ajouterEntrant()">Ajouter le nouvel entrant</button>
+
+</div>
 <div id="choixAgences" style="display:none;">
     <h3>Sélectionner une agence</h3>
 
@@ -225,7 +267,25 @@
   </footer>
 <script>
 function ouvrirNouveauxEntrants() {
-    alert("Module Nouveaux entrants");
+    let nom = prompt("Nom et prénom du nouvel entrant :");
+    if (!nom) return;
+
+    let dateEntree = prompt("Date d'entrée (JJ/MM/AAAA) :");
+    if (!dateEntree) return;
+
+    let fonction = prompt("Fonction : aide-livreur, conducteur, autre... :");
+    if (!fonction) return;
+
+    let agence = prompt("Agence : Dol de Bretagne, Mont de Marsan, Tarascon, etc. :");
+    if (!agence) return;
+
+    alert(
+        "Nouvel entrant ajouté !\n\n" +
+        "Nom : " + nom + "\n" +
+        "Date d'entrée : " + dateEntree + "\n" +
+        "Fonction : " + fonction + "\n" +
+        "Agence : " + agence
+    );
 }
 
 function ouvrirTuteurs() {
