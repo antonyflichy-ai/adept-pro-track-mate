@@ -169,11 +169,21 @@
       </button>
 
       <button onclick="ouvrirAgences()">
-        <span>🏢</span>
-        <strong>Agences</strong>
-        <br>
-        Gérer les agences partenaires
-      </button>
+    <span>🏢</span>
+    <strong>Agences</strong>
+    <br>
+    Gérer les agences partenaires
+</button>
+
+<div id="choixAgences" style="display:none;">
+    <h3>Sélectionner une agence</h3>
+
+    <button onclick="selectionnerAgence('Dol de Bretagne')">
+        Dol de Bretagne
+    </button>
+
+    <p id="agenceSelectionnee"></p>
+</div>
 
       <button onclick="ouvrirPlanning()">
         <span>📅</span>
@@ -199,7 +209,12 @@ function ouvrirTuteurs() {
 }
 
 function ouvrirAgences() {
-    alert("Module Agences");
+    document.getElementById("choixAgences").style.display = "block";
+}
+
+function selectionnerAgence(nom) {
+    document.getElementById("agenceSelectionnee").textContent =
+        "Agence sélectionnée : " + nom;
 }
 
 function ouvrirPlanning() {
