@@ -267,25 +267,187 @@
   </footer>
 <script>
 function ouvrirNouveauxEntrants() {
-    let nom = prompt("Nom et prénom du nouvel entrant :");
-    if (!nom) return;
 
-    let dateEntree = prompt("Date d'entrée (JJ/MM/AAAA) :");
-    if (!dateEntree) return;
+    const agences = [
+        "Dol de Bretagne",
+        "Mont de Marsan",
+        "Tarascon",
+        "Fleury Mérogis",
+        "Noisy le Grand",
+        "St Pierre de Chandieu",
+        "Vitry-en-Artois"
+    ];
 
-    let fonction = prompt("Fonction : aide-livreur, conducteur, autre... :");
-    if (!fonction) return;
+    const fonctions = [
+        "Conducteur",
+        "Aide-livreur",
+        "Technicien de quai",
+        "Autre"
+    ];
 
-    let agence = prompt("Agence : Dol de Bretagne, Mont de Marsan, Tarascon, etc. :");
-    if (!agence) return;
+    const ancienneFenetre = document.getElementById("formNouvelEntrant");
+    if (ancienneFenetre) {
+        ancienneFenetre.remove();
+    }
 
-    alert(
-        "Nouvel entrant ajouté !\n\n" +
-        "Nom : " + nom + "\n" +
-        "Date d'entrée : " + dateEntree + "\n" +
-        "Fonction : " + fonction + "\n" +
-        "Agence : " + agence
-    );
+    const fenetre = document.createElement("div");
+    fenetre.id = "formNouvelEntrant";
+
+    fenetre.style.position = "fixed";
+    fenetre.style.top = "50%";
+    fenetre.style.left = "50%";
+    fenetre.style.transform = "translate(-50%, -50%)";
+    fenetre.style.background = "white";
+    fenetre.style.padding = "30px";
+    fenetre.style.borderRadius = "15px";
+    fenetre.style.boxShadow = "0 10px 40px rgba(0,0,0,0.3)";
+    fenetre.style.zIndex = "9999";
+    fenetre.style.width = "420px";
+    fenetre.style.maxWidth = "90%";
+
+    fenetre.innerHTML = `
+        <h2>Ajouter un nouvel entrant</h2>
+
+        <label><strong>Nom et prénom</strong></label>
+        <input id="nomEntrant" type="text"
+               placeholder="Nom et prénom"
+               style="width:100%; padding:10px; margin:8px 0 15px;">
+
+        <label><strong>Date d'entrée</strong></label>
+        <input id="dateEntrant" type="date"
+               style="width:100%; padding:10px; margin:8px 0 15px;">
+
+        <label><strong>Fonction</strong></label>
+
+        <div id="fonctionsEntrant" style="margin:10px 0 20px;">
+            ${fonctions.map(fonction => `
+                <label style="display:block; margin:8px 0;">
+                    <input type="checkbox" value="${fonction}">
+                    ${fonction}
+                </label>
+            `).join("")}
+        </div>
+
+        <label><strong>Agence</strong></label>
+
+        <div id="agencesEntrant" style="margin-top:10px;">
+            ${agences.map(agence => `
+                <button type="button"
+                        data-agence="${agence}"
+                        style="
+                            display:block;
+                            width:100%;
+                            padding:10px;
+                            margin:6px 0;
+                            border:1px solid #ccc;
+                            border-radius:8px;
+                            background:#f5f5f5;
+                            cursor:pointer;
+                            text-align:left;
+                        ">
+                    ${agence}
+                </button>
+            `).join("")}
+        </div>
+
+        <p id="agenceChoisie"
+           style="font-weight:bold; margin-top:15px;">
+            Aucune agence sélectionnée
+        </p>
+
+        <div style="margin-top:20px; text-align:right;">
+            <button id="annulerEntrant"
+                    style="
+                        padding:10px 15px;
+                        margin-right:8px;
+                        border:0;
+                        border-radius:8px;
+                        cursor:pointer;
+                    ">
+                Annuler
+            </button>
+
+            <button id="validerEntrant"
+                    style="
+                        padding:10px 15px;
+                        border:0;
+                        border-radius:8px;
+                        background:#2563eb;
+                        color:white;
+                        cursor:pointer;
+                    ">
+                Ajouter
+            </button>
+        </div>
+    `;
+
+    document.body.appendChild(fenetre);
+
+    let agenceSelectionnee = "";
+
+    document.querySelectorAll("#agencesEntrant button").forEach(bouton => {
+
+        bouton.addEventListener("click", function() {
+
+            agenceSelectionnee = this.dataset.agence;
+
+            document.querySelectorAll("#agencesEntrant button").forEach(b => {
+                b.style.background = "#f5f5f5";
+                b.style.color = "black";
+            });
+
+            this.style.background = "#2563eb";
+            this.style.color = "white";
+
+            document.getElementById("agenceChoisie").textContent =
+                "Agence sélectionnée : " + agenceSelectionnee;
+        });
+    });
+
+    document.getElementById("annulerEntrant").addEventListener("click", function() {
+        fenetre.remove();
+    });
+
+    document.getElementById("validerEntrant").addEventListener("click", function() {
+
+        const nom = document.getElementById("nomEntrant").value;
+        const date = document.getElementById("dateEntrant").value;
+
+        const fonctionsSelectionnees =
+            Array.from(
+                document.querySelectorAll("#fonctionsEntrant input:checked")
+            ).map(input => input.value);
+
+        if (!nom) {
+            alert("Merci de renseigner le nom et prénom.");
+            return;
+        }
+
+        if (!date) {
+            alert("Merci de sélectionner la date d'entrée.");
+            return;
+        }
+
+        if (fonctionsSelectionnees.length === 0) {
+            alert("Merci de sélectionner au moins une fonction.");
+            return;
+        }
+
+        if (!agenceSelectionnee) {
+            alert("Merci de sélectionner une agence.");
+            return;
+        }
+
+        alert(
+            "Nouvel entrant ajouté !\n\n" +
+            "Nom : " + nom + "\n" +
+            "Date d'entrée : " + date + "\n" +
+            "Fonction(s) : " + fonctionsSelectionnees.join(", ") + "\n" +
+            "Agence : " + agenceSelectionnee
+        );
+
+        fenetre.remove();
+    });
 }
 
 function ouvrirTuteurs() {
