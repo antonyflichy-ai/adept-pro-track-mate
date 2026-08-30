@@ -703,6 +703,147 @@ function selectionnerAgence(nom) {
 function ouvrirPlanning() {
     alert("Module Planning");
 }
+ function afficherListeNouveauxEntrants() {
+
+    const entrants = JSON.parse(
+        localStorage.getItem("nouveauxEntrants") || "[]"
+    );
+
+    const ancienneFenetre =
+        document.getElementById("listeNouveauxEntrants");
+
+    if (ancienneFenetre) {
+        ancienneFenetre.remove();
+    }
+
+    const fenetre = document.createElement("div");
+
+    fenetre.id = "listeNouveauxEntrants";
+
+    fenetre.style.position = "fixed";
+    fenetre.style.top = "50%";
+    fenetre.style.left = "50%";
+    fenetre.style.transform = "translate(-50%, -50%)";
+    fenetre.style.background = "white";
+    fenetre.style.padding = "30px";
+    fenetre.style.borderRadius = "15px";
+    fenetre.style.boxShadow = "0 10px 40px rgba(0,0,0,0.3)";
+    fenetre.style.width = "600px";
+    fenetre.style.maxWidth = "90%";
+    fenetre.style.maxHeight = "80vh";
+    fenetre.style.overflowY = "auto";
+    fenetre.style.zIndex = "10000";
+
+    let contenu = `
+        <h2>👤 Nouveaux entrants</h2>
+    `;
+
+    if (entrants.length === 0) {
+
+        contenu += `
+            <p>Aucun nouvel entrant enregistré.</p>
+        `;
+
+    } else {
+
+        entrants.forEach(function(entrant, index) {
+
+            contenu += `
+                <div style="
+                    border:1px solid #ddd;
+                    border-radius:10px;
+                    padding:15px;
+                    margin:10px 0;
+                ">
+
+                    <strong>${entrant.nom}</strong>
+
+                    <br>
+                    📅 Date d'entrée : ${entrant.date}
+
+                    <br>
+                    💼 Fonction : ${entrant.fonction}
+
+                    <br>
+                    🏢 Agence : ${entrant.agence}
+
+                    <br><br>
+
+                    <button
+                        onclick="supprimerNouvelEntrant(${index})"
+                        style="
+                            padding:8px 12px;
+                            border:0;
+                            border-radius:6px;
+                            background:#dc2626;
+                            color:white;
+                            cursor:pointer;
+                        "
+                    >
+                        Supprimer
+                    </button>
+
+                </div>
+            `;
+        });
+    }
+
+    contenu += `
+        <br>
+
+        <button
+            id="fermerListeEntrants"
+            style="
+                padding:10px 18px;
+                border:0;
+                border-radius:8px;
+                background:#2563eb;
+                color:white;
+                cursor:pointer;
+            "
+        >
+            Fermer
+        </button>
+    `;
+
+    fenetre.innerHTML = contenu;
+
+    document.body.appendChild(fenetre);
+
+    document
+        .getElementById("fermerListeEntrants")
+        .onclick = function() {
+            fenetre.remove();
+        };
+}
+
+
+function supprimerNouvelEntrant(index) {
+
+    const entrants = JSON.parse(
+        localStorage.getItem("nouveauxEntrants") || "[]"
+    );
+
+    if (!confirm("Voulez-vous vraiment supprimer cet entrant ?")) {
+        return;
+    }
+
+    entrants.splice(index, 1);
+
+    localStorage.setItem(
+        "nouveauxEntrants",
+        JSON.stringify(entrants)
+    );
+
+    const compteur =
+        document.querySelectorAll(".number")[0];
+
+    if (compteur) {
+        compteur.textContent = entrants.length;
+    }
+
+    afficherListeNouveauxEntrants();
+}
 </script>
 </body>
 </html>
