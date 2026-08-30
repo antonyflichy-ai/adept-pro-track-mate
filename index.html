@@ -154,7 +154,7 @@
 
     <section class="menu">
 
-      <button onclick="ouvrirNouveauxEntrants()">
+      <button onclick="afficherNouveauxEntrants()">
         <span>👤</span>
         <strong>Nouveaux entrants</strong>
         <br>
@@ -660,6 +660,33 @@ function ouvrirNouveauxEntrants() {
             }
         };
 }
+ function afficherNouveauxEntrants() {
+
+    const entrants = JSON.parse(
+        localStorage.getItem("nouveauxEntrants") || "[]"
+    );
+
+    if (entrants.length === 0) {
+        alert("Aucun nouvel entrant enregistré.");
+        return;
+    }
+
+    let message = "NOUVEAUX ENTRANTS\n\n";
+
+    entrants.forEach(function(entrant, index) {
+
+        message +=
+            (index + 1) + ". " +
+            entrant.nom + "\n" +
+            "Date d'entrée : " + entrant.date + "\n" +
+            "Fonction : " + entrant.fonction + "\n" +
+            "Agence : " + entrant.agence + "\n\n";
+    });
+
+    alert(message);
+  if (confirm("Voulez-vous ajouter un nouvel entrant ?")) {
+    ouvrirNouveauxEntrants();
+}}
 function ouvrirTuteurs() {
     alert("Module Tuteurs");
 }
