@@ -774,6 +774,49 @@ function ouvrirTuteurs() {
             `;
         });
     }
+
+    contenu += `
+        </div>
+
+        <br>
+
+        <button
+            onclick="fermerFenetreTuteurs()"
+            style="
+                padding:10px 18px;
+                border:0;
+                border-radius:8px;
+                background:#6b7280;
+                color:white;
+                cursor:pointer;
+            "
+        >
+            Fermer
+        </button>
+    `;
+
+    const fenetre = document.createElement("div");
+
+    fenetre.id = "fenetreTuteurs";
+
+    fenetre.style.position = "fixed";
+    fenetre.style.top = "5%";
+    fenetre.style.left = "50%";
+    fenetre.style.transform = "translateX(-50%)";
+    fenetre.style.background = "white";
+    fenetre.style.padding = "30px";
+    fenetre.style.borderRadius = "15px";
+    fenetre.style.boxShadow = "0 10px 40px rgba(0,0,0,0.3)";
+    fenetre.style.width = "500px";
+    fenetre.style.maxWidth = "90%";
+    fenetre.style.maxHeight = "90vh";
+    fenetre.style.overflowY = "auto";
+    fenetre.style.zIndex = "99999";
+
+    fenetre.innerHTML = contenu;
+
+    document.body.appendChild(fenetre);
+}
 function ajouterTuteur() {
 
     const champ = document.getElementById("nomNouveauTuteur");
