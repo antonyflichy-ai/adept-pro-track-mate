@@ -440,9 +440,11 @@ function ouvrirNouveauxEntrants() {
     const formulaire = document.createElement("div");
 
     formulaire.style.position = "fixed";
-    formulaire.style.top = "50%";
-    formulaire.style.left = "50%";
-    formulaire.style.transform = "translate(-50%, -50%)";
+    formulaire.style.top = "5%";
+formulaire.style.left = "50%";
+formulaire.style.transform = "translateX(-50%)";
+formulaire.style.maxHeight = "90vh";
+formulaire.style.overflowY = "auto";
     formulaire.style.background = "white";
     formulaire.style.padding = "30px";
     formulaire.style.borderRadius = "15px";
