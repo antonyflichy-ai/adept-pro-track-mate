@@ -51,7 +51,23 @@ function enregistrerAffectation(id){if(!estMaster())return alert("Accès réserv
 function supprimerAffectation(id){if(!estMaster())return alert("Accès réservé au Master du site.");localStorage.setItem("affectationsTuteurs",JSON.stringify(lire("affectationsTuteurs").filter(x=>x.entrantId!==id)));mettreAJourCompteurs();ouvrirAffectationsTuteurs()}
 function ouvrirAgences(){const old=document.getElementById("fenetreAgences");if(old)old.remove();const f=document.createElement("div");f.id="fenetreAgences";Object.assign(f.style,{position:"fixed",top:"10%",left:"50%",transform:"translateX(-50%)",background:"white",padding:"25px",borderRadius:"15px",boxShadow:"0 10px 40px rgba(0,0,0,.3)",width:"400px",maxWidth:"90%",maxHeight:"80vh",overflowY:"auto",zIndex:"99999"});f.innerHTML="<h3>🏢 Agences</h3>"+AGENCES.map(x=>`<button onclick="selectionnerAgence('${x.replace(/'/g,"\\'")}')" style="display:block;width:100%;padding:10px;margin:6px 0;border:1px solid #ccc;border-radius:8px;background:white;text-align:left;cursor:pointer">${x}</button>`).join("")+"<p id='agenceSelectionnee' style='margin-top:15px;font-weight:bold'></p><br><button onclick=\"document.getElementById('fenetreAgences').remove()\">Fermer</button>";document.body.appendChild(f)}
 function selectionnerAgence(nom){const e=document.getElementById("agenceSelectionnee");if(e)e.textContent="Agence sélectionnée : "+nom}
-function ouvrirPlanning(){if(estMaster())ouvrirAffectationsTuteurs();else{const e=lire("nouveauxEntrants"),a=lire("affectationsTuteurs"),l=e.map(x=>{const q=a.find(z=>z.entrantId===x.id);return`${x.nom} — ${x.agence} — ${q?q.tuteurNom+" ("+q.dateDebut+" → "+q.dateFin+")":"Tuteur non affecté"}`}).join("\n");alert("PLANNING\n\n"+(l||"Aucun entrant enregistré."))}}
+function ouvrirPlanning(){
+ const old=document.getElementById("fenetrePlanning");if(old)old.remove();
+ const entrants=lire("nouveauxEntrants"),aff=lire("affectationsTuteurs");
+ const f=document.createElement("div");f.id="fenetrePlanning";
+ Object.assign(f.style,{position:"fixed",top:"4%",left:"50%",transform:"translateX(-50%)",background:"white",padding:"28px",borderRadius:"15px",boxShadow:"0 10px 40px rgba(0,0,0,.3)",width:"900px",maxWidth:"94%",maxHeight:"92vh",overflowY:"auto",zIndex:"100000"});
+ let c=`<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><div><h2>📅 Planning</h2><p style="color:#6b7280;margin-top:5px">Vue des accompagnements programmés</p></div><button id="fermerPlanning" style="padding:9px 15px;border:0;border-radius:8px;background:#6b7280;color:white;cursor:pointer">Fermer</button></div>`;
+ if(!entrants.length){c+=`<div style="margin-top:25px;padding:20px;border-radius:10px;background:#f3f4f6">Aucun nouvel entrant enregistré.</div>`}
+ else{
+  c+=`<div style="overflow-x:auto;margin-top:20px"><table style="width:100%;border-collapse:collapse;min-width:720px"><thead><tr><th style="padding:10px;border-bottom:2px solid #e5e7eb;text-align:left">Entrant</th><th style="padding:10px;border-bottom:2px solid #e5e7eb;text-align:left">Agence</th><th style="padding:10px;border-bottom:2px solid #e5e7eb;text-align:left">Fonction</th><th style="padding:10px;border-bottom:2px solid #e5e7eb;text-align:left">Tuteur</th><th style="padding:10px;border-bottom:2px solid #e5e7eb;text-align:left">Période</th></tr></thead><tbody>`;
+  entrants.forEach(e=>{const a=aff.find(x=>x.entrantId===e.id);c+=`<tr><td style="padding:12px 10px;border-bottom:1px solid #eee"><strong>${e.nom}</strong><br><small>${e.date}</small></td><td style="padding:12px 10px;border-bottom:1px solid #eee">${e.agence}</td><td style="padding:12px 10px;border-bottom:1px solid #eee">${e.fonction}</td><td style="padding:12px 10px;border-bottom:1px solid #eee">${a?a.tuteurNom:"<span style='color:#dc2626'>Non affecté</span>"}</td><td style="padding:12px 10px;border-bottom:1px solid #eee">${a?a.dateDebut+" → "+a.dateFin:"—"}</td></tr>`});
+  c+=`</tbody></table></div>`;
+ }
+ if(estMaster())c+=`<div style="margin-top:20px"><button id="gererPlanning" style="padding:11px 18px;border:0;border-radius:8px;background:#059669;color:white;cursor:pointer">🎓 Gérer les affectations</button></div>`;
+ f.innerHTML=c;document.body.appendChild(f);
+ document.getElementById("fermerPlanning").onclick=()=>f.remove();
+ const gp=document.getElementById("gererPlanning");if(gp)gp.onclick=()=>{f.remove();ouvrirAffectationsTuteurs()};
+}
 document.addEventListener("DOMContentLoaded",mettreAJourCompteurs);
 </script>
 </body>
