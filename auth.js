@@ -1,7 +1,8 @@
-// Adept Pro Track Mate — base d'authentification Supabase
-// Ne jamais placer une clé service_role ou un mot de passe dans ce fichier.
-const SUPABASE_URL = '';
-const SUPABASE_ANON_KEY = '';
+// Adept Pro Track Mate — authentification Supabase
+// La clé publishable est conçue pour être utilisée côté navigateur.
+// Ne jamais placer une clé secret/service_role ni un mot de passe ici.
+const SUPABASE_URL = 'https://ngdgmijmdvneqbdbqwmy.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_21Kr6md9gv-r9YCwPPYLsg_pi6X_1sA';
 
 function authConfigReady(){ return Boolean(SUPABASE_URL && SUPABASE_ANON_KEY); }
 function utilisateurConnecte(){ return Boolean(localStorage.getItem('access_token')); }
