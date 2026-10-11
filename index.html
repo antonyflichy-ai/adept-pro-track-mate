@@ -11,3 +11,4 @@ function ouvrirAgences(){ouvrir('agences','<h2>🏢 Agences</h2>'+AGENCES.map(x=
 function ouvrirPlanning(){const e=lire('nouveauxEntrants'),a=lire('affectationsTuteurs');let h='<h2>📅 Planning</h2><div class="table-wrap"><table class="planning"><thead><tr><th>Entrant</th><th>Agence</th><th>Fonction</th><th>Tuteur</th><th>Accompagnement</th></tr></thead><tbody>';e.forEach(x=>{const q=a.find(v=>v.entrantId===x.id);h+='<tr><td>'+esc(x.nom)+'</td><td>'+esc(x.agence)+'</td><td>'+esc(x.fonction)+'</td><td>'+(q?esc(q.tuteurNom):'<span class="badge wait">Non affecté</span>')+'</td><td>'+(q?esc(q.dateDebut)+' → '+esc(q.dateFin):'À programmer')+'</td></tr>'});h+='</tbody></table></div><br><button class="btn secondary" id="c">Fermer</button>';ouvrir('planning',h);document.getElementById('c').onclick=()=>fermer('planning')}
 auth();
 </script></body></html>
+<!-- Redéploiement GitHub Pages : 11 octobre 2026 -->
