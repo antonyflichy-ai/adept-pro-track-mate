@@ -40,14 +40,23 @@ renderHomeCalendar();
 
 function ouvrirFormationSalle(agencePreselectionnee=''){
   const modules=['Assurance','RSE/code du travail','Geste et posture','Simulateur'];
-  ouvrir('formationSalle','<h2>🏫 Fomation salle</h2><p class="muted">Ajoutez directement les noms et prénoms des participants pour chaque agence et choisissez les modules suivis.</p><label for="fsAgence">Agence</label><select id="fsAgence" class="field"><option value="">Choisir une agence…</option>'+AGENCES.map(a=>'<option value="'+esc(a)+'">'+esc(a)+'</option>').join('')+'</select><div id="fsModules" style="margin-top:18px"></div><div class="actions"><button class="btn secondary" id="fsFermer">Fermer</button></div>');
+  ouvrir('formationSalle','<h2>🏫 Fomation salle</h2><p class="muted">Sélectionnez une agence, ajoutez jusqu’à 8 participants, puis validez le groupe pour choisir une date de formation commune.</p><label for="fsAgence">Agence</label><select id="fsAgence" class="field"><option value="">Choisir une agence…</option>'+AGENCES.map(a=>'<option value="'+esc(a)+'">'+esc(a)+'</option>').join('')+'</select><div id="fsModules" style="margin-top:18px"></div><div class="actions"><button class="btn secondary" id="fsFermer">Fermer</button></div>');
   const agence=document.getElementById('fsAgence'),zone=document.getElementById('fsModules');
   document.getElementById('fsFermer').onclick=()=>fermer('formationSalle');
-   agence.onchange=()=>{
+  agence.onchange=()=>{
     const selected=agence.value;
     if(!selected){zone.innerHTML='';return}
+    let pending=[];
     const saved=lire('participantsFormationSalle').filter(p=>p.agence===selected);
-    zone.innerHTML='<h3>Modules de formation</h3><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px">'+modules.map(m=>'<label class="row" style="display:flex;align-items:center;gap:10px;margin:0;cursor:pointer"><input type="checkbox" class="fsModule" value="'+esc(m)+'" style="width:18px;height:18px"> <span>'+esc(m)+'</span></label>').join('')+'</div><h3 style="margin-top:24px">Ajouter un participant</h3><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px"><div><label for="fsPrenom">Prénom</label><input id="fsPrenom" class="field" placeholder="Prénom"></div><div><label for="fsNom">Nom</label><input id="fsNom" class="field" placeholder="Nom"></div></div><div class="actions"><button class="btn primary" id="fsAjouter">Valider et choisir une date</button></div><h3 style="margin-top:24px">Participants inscrits — '+saved.length+'</h3><div id="fsListe"></div>';
+    zone.innerHTML='<h3>Modules de formation</h3><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px">'+modules.map(m=>'<label class="row" style="display:flex;align-items:center;gap:10px;margin:0;cursor:pointer"><input type="checkbox" class="fsModule" value="'+esc(m)+'" style="width:18px;height:18px"> <span>'+esc(m)+'</span></label>').join('')+'</div><h3 style="margin-top:24px">Ajouter les participants (8 maximum)</h3><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px"><div><label for="fsPrenom">Prénom</label><input id="fsPrenom" class="field" placeholder="Prénom"></div><div><label for="fsNom">Nom</label><input id="fsNom" class="field" placeholder="Nom"></div></div><div class="actions"><button class="btn primary" id="fsAjouter">Ajouter au groupe</button><button class="btn primary" id="fsValider" disabled>Valider le groupe et choisir une date (0/8)</button></div><h3 style="margin-top:24px">Participants déjà inscrits — '+saved.length+'</h3><div id="fsListe"></div><h3 style="margin-top:24px">Participants du groupe à valider</h3><div id="fsPending"></div>';
+    const renderPending=()=>{
+      const box=document.getElementById('fsPending'),btn=document.getElementById('fsValider');
+      if(!box||!btn)return;
+      box.innerHTML=pending.length?'<table class="table"><thead><tr><th>Prénom</th><th>Nom</th><th>Modules</th><th></th></tr></thead><tbody>'+pending.map((p,i)=>'<tr><td>'+esc(p.prenom)+'</td><td>'+esc(p.nom)+'</td><td>'+esc(p.modules.join(', '))+'</td><td><button class="btn danger" data-pendingdel="'+i+'">Retirer</button></td></tr>').join('')+'</tbody></table>':'<div class="row muted">Aucun participant ajouté au groupe pour le moment.</div>';
+      btn.textContent='Valider le groupe et choisir une date ('+pending.length+'/8)';
+      btn.disabled=pending.length===0;
+      box.querySelectorAll('[data-pendingdel]').forEach(b=>b.onclick=()=>{pending.splice(Number(b.dataset.pendingdel),1);renderPending()});
+    };
     const renderList=()=>{
       const rows=lire('participantsFormationSalle').filter(p=>p.agence===selected);
       const list=document.getElementById('fsListe'); if(!list)return;
@@ -59,17 +68,24 @@ function ouvrirFormationSalle(agencePreselectionnee=''){
       const choisis=[...document.querySelectorAll('.fsModule:checked')].map(x=>x.value);
       if(!prenom||!nom){alert('Renseignez le prénom et le nom du participant.');return}
       if(!choisis.length){alert('Sélectionnez au moins un module de formation.');return}
-      const participant={id:crypto.randomUUID(),prenom,nom,agence:selected,modules:choisis,dateInscription:new Date().toISOString()};
-      choisirDateFormation(participant);
+      if(pending.length>=8){alert('Vous pouvez ajouter 8 participants maximum par groupe.');return}
+      pending.push({id:crypto.randomUUID(),prenom,nom,agence:selected,modules:choisis,dateInscription:new Date().toISOString()});
+      document.getElementById('fsPrenom').value='';document.getElementById('fsNom').value='';
+      renderPending();
     };
-    renderList();
+    document.getElementById('fsValider').onclick=()=>{
+      if(!pending.length)return;
+      choisirDateFormation(pending.slice());
+    };
+    renderPending();renderList();
   };
   if(agencePreselectionnee){agence.value=agencePreselectionnee;agence.dispatchEvent(new Event('change'));}
 }
-function choisirDateFormation(participant){
+function choisirDateFormation(participants){
   const now=new Date();now.setHours(0,0,0,0);const sessions=lire('formationsSalleSessions'),options=[];
   for(let offset=0;offset<120&&options.length<12;offset++){const d=new Date(now);d.setDate(d.getDate()+offset);if(d.getDay()===1){const key=dateKey(d);if(!sessions.some(s=>s.date===key))options.push({date:key,label:new Intl.DateTimeFormat('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).format(d)})}}
-  let h='<h2>📅 Valider la date de formation</h2><p>Participant : <strong>'+esc(participant.prenom+' '+participant.nom)+'</strong> — '+esc(participant.agence)+'</p><p class="muted">Choisissez un lundi disponible. Les dates déjà réservées pour une formation en salle ne sont pas proposées.</p><label for="fsDateLundi">Lundi disponible</label><select id="fsDateLundi" class="field"><option value="">Choisir un lundi…</option>'+options.map(o=>'<option value="'+o.date+'">'+esc(o.label)+'</option>').join('')+'</select><div class="row"><label style="display:flex;gap:10px;align-items:center"><input id="fsAutreDate" type="checkbox" style="width:18px;height:18px"> Autre demande de date (hors lundi ou date particulière)</label><div id="fsAutreZone" style="display:none;margin-top:12px"><label for="fsDateAutre">Date souhaitée</label><input id="fsDateAutre" class="field" type="date"><p class="muted">Cette date sera signalée comme une demande particulière.</p></div></div><div class="actions"><button class="btn primary" id="fsConfirmerDate">Confirmer la formation</button><button class="btn secondary" id="fsAnnulerDate">Plus tard</button></div>';
+  const premier=participants[0];
+  let h='<h2>📅 Valider la date de formation</h2><p>Groupe de <strong>'+participants.length+' participant(s)</strong> — '+esc(premier.agence)+'</p><div class="row">'+participants.map(p=>'<div>'+esc(p.prenom+' '+p.nom)+' <small class="muted">('+esc(p.modules.join(', '))+')</small></div>').join('')+'</div><p class="muted">Choisissez un lundi disponible pour tout le groupe. Les dates déjà réservées pour une formation en salle ne sont pas proposées.</p><label for="fsDateLundi">Lundi disponible</label><select id="fsDateLundi" class="field"><option value="">Choisir un lundi…</option>'+options.map(o=>'<option value="'+o.date+'">'+esc(o.label)+'</option>').join('')+'</select><div class="row"><label style="display:flex;gap:10px;align-items:center"><input id="fsAutreDate" type="checkbox" style="width:18px;height:18px"> Autre demande de date (hors lundi ou date particulière)</label><div id="fsAutreZone" style="display:none;margin-top:12px"><label for="fsDateAutre">Date souhaitée</label><input id="fsDateAutre" class="field" type="date"><p class="muted">Cette date sera signalée comme une demande particulière.</p></div></div><div class="actions"><button class="btn primary" id="fsConfirmerDate">Confirmer les '+participants.length+' participants</button><button class="btn secondary" id="fsAnnulerDate">Retour au groupe</button></div>';
   ouvrir('choixDateFormation',h);document.getElementById('fsDateAutre').min=dateKey(now);
   const check=document.getElementById('fsAutreDate'),other=document.getElementById('fsAutreZone'),select=document.getElementById('fsDateLundi');
   check.onchange=()=>{other.style.display=check.checked?'block':'none';if(check.checked)select.value=''};
@@ -77,11 +93,15 @@ function choisirDateFormation(participant){
   document.getElementById('fsConfirmerDate').onclick=()=>{
     const special=check.checked,date=special?document.getElementById('fsDateAutre').value:select.value;
     if(!date){alert('Choisissez un lundi disponible ou renseignez une autre date.');return}
+    if(date<dateKey(now)){alert('La date ne peut pas être dans le passé.');return}
     if(!special&&new Date(date+'T00:00:00').getDay()!==1){alert('La date standard doit être un lundi.');return}
     if(sessions.some(s=>s.date===date)){alert('Une formation en salle est déjà prévue à cette date. Choisissez une autre date.');return}
-    const participants=lire('participantsFormationSalle');participants.push(participant);sauver('participantsFormationSalle',participants);
-    sessions.push({id:crypto.randomUUID(),participantId:participant.id,prenom:participant.prenom,nom:participant.nom,agence:participant.agence,modules:participant.modules,date,autreDate:special});
-    sauver('formationsSalleSessions',sessions);fermer('choixDateFormation');fermer('formationSalle');selected=new Date(date+'T12:00:00');shown=new Date(selected.getFullYear(),selected.getMonth(),1);renderHomeCalendar();alert('Formation ajoutée au calendrier en violet.');
+    const existants=lire('participantsFormationSalle');
+    participants.forEach(participant=>{
+      existants.push(participant);
+      sessions.push({id:crypto.randomUUID(),participantId:participant.id,prenom:participant.prenom,nom:participant.nom,agence:participant.agence,modules:participant.modules,date,autreDate:special});
+    });
+    sauver('participantsFormationSalle',existants);sauver('formationsSalleSessions',sessions);fermer('choixDateFormation');fermer('formationSalle');selected=new Date(date+'T12:00:00');shown=new Date(selected.getFullYear(),selected.getMonth(),1);renderHomeCalendar();alert('Les '+participants.length+' participants ont été ajoutés au calendrier en violet.');
   };
   document.getElementById('fsAnnulerDate').onclick=()=>fermer('choixDateFormation');
 }
