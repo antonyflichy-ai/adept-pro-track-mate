@@ -85,23 +85,38 @@ function choisirDateFormation(participants){
   const now=new Date();now.setHours(0,0,0,0);const sessions=lire('formationsSalleSessions'),options=[];
   for(let offset=0;offset<120&&options.length<12;offset++){const d=new Date(now);d.setDate(d.getDate()+offset);if(d.getDay()===1){const key=dateKey(d);if(!sessions.some(s=>s.date===key))options.push({date:key,label:new Intl.DateTimeFormat('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).format(d)})}}
   const premier=participants[0];
-  let h='<h2>📅 Valider la date de formation</h2><p>Groupe de <strong>'+participants.length+' participant(s)</strong> — '+esc(premier.agence)+'</p><div class="row">'+participants.map(p=>'<div>'+esc(p.prenom+' '+p.nom)+' <small class="muted">('+esc(p.modules.join(', '))+')</small></div>').join('')+'</div><p class="muted">Choisissez un lundi disponible pour tout le groupe. Les dates déjà réservées pour une formation en salle ne sont pas proposées.</p><label for="fsDateLundi">Lundi disponible</label><select id="fsDateLundi" class="field"><option value="">Choisir un lundi…</option>'+options.map(o=>'<option value="'+o.date+'">'+esc(o.label)+'</option>').join('')+'</select><div class="row"><label style="display:flex;gap:10px;align-items:center"><input id="fsAutreDate" type="checkbox" style="width:18px;height:18px"> Autre demande de date (hors lundi ou date particulière)</label><div id="fsAutreZone" style="display:none;margin-top:12px"><label for="fsDateAutre">Date souhaitée</label><input id="fsDateAutre" class="field" type="date"><p class="muted">Cette date sera signalée comme une demande particulière.</p></div></div><div class="actions"><button class="btn primary" id="fsConfirmerDate">Confirmer les '+participants.length+' participants</button><button class="btn secondary" id="fsAnnulerDate">Retour au groupe</button></div>';
+  let h='<h2>📅 Valider la date de formation</h2><p>Groupe de <strong>'+participants.length+' participant(s)</strong> — '+esc(premier.agence)+'</p><div class="row">'+participants.map(p=>'<div>'+esc(p.prenom+' '+p.nom)+' <small class="muted">('+esc(p.modules.join(', '))+')</small></div>').join('')+'</div><p class="muted">Choisissez un lundi disponible pour tout le groupe. Les dates déjà réservées pour une formation en salle ne sont pas proposées.</p><label for="fsDateLundi">Lundi disponible</label><select id="fsDateLundi" class="field"><option value="">Choisir un lundi…</option>'+options.map(o=>'<option value="'+o.date+'">'+esc(o.label)+'</option>').join('')+'</select><div class="row"><label style="display:flex;gap:10px;align-items:center"><input id="fsAutreDate" type="checkbox" style="width:18px;height:18px"> Autre demande de date (hors lundi ou date particulière)</label><div id="fsAutreZone" style="display:none;margin-top:12px"><label for="fsDateAutre">Date souhaitée</label><input id="fsDateAutre" class="field" type="date"><p class="muted">Cette date sera signalée comme une demande particulière.</p></div></div><div id="fsDateMessage" class="error" style="display:none" role="alert"></div><div class="actions"><button class="btn primary" id="fsConfirmerDate">Confirmer les '+participants.length+' participants</button><button class="btn secondary" id="fsAnnulerDate">Retour au groupe</button></div>';
   ouvrir('choixDateFormation',h);document.getElementById('fsDateAutre').min=dateKey(now);
   const check=document.getElementById('fsAutreDate'),other=document.getElementById('fsAutreZone'),select=document.getElementById('fsDateLundi');
   check.onchange=()=>{other.style.display=check.checked?'block':'none';if(check.checked)select.value=''};
   select.onchange=()=>{if(select.value)check.checked=false;other.style.display=check.checked?'block':'none'};
-  document.getElementById('fsConfirmerDate').onclick=()=>{
+  const confirmerBtn=document.getElementById('fsConfirmerDate');
+  confirmerBtn.onclick=()=>{
     const special=check.checked,date=special?document.getElementById('fsDateAutre').value:select.value;
-    if(!date){alert('Choisissez un lundi disponible ou renseignez une autre date.');return}
-    if(date<dateKey(now)){alert('La date ne peut pas être dans le passé.');return}
-    if(!special&&new Date(date+'T00:00:00').getDay()!==1){alert('La date standard doit être un lundi.');return}
-    if(sessions.some(s=>s.date===date)){alert('Une formation en salle est déjà prévue à cette date. Choisissez une autre date.');return}
-    const existants=lire('participantsFormationSalle');
-    participants.forEach(participant=>{
-      existants.push(participant);
-      sessions.push({id:crypto.randomUUID(),participantId:participant.id,prenom:participant.prenom,nom:participant.nom,agence:participant.agence,modules:participant.modules,date,autreDate:special});
-    });
-    sauver('participantsFormationSalle',existants);sauver('formationsSalleSessions',sessions);fermer('choixDateFormation');fermer('formationSalle');selected=new Date(date+'T12:00:00');shown=new Date(selected.getFullYear(),selected.getMonth(),1);renderHomeCalendar();alert('Les '+participants.length+' participants ont été ajoutés au calendrier en violet.');
+    const msg=document.getElementById('fsDateMessage');
+    const erreur=t=>{if(msg){msg.textContent=t;msg.style.display='block'}else alert(t)};
+    if(!date){erreur('Choisissez un lundi disponible ou renseignez une autre date.');return}
+    if(date<dateKey(now)){erreur('La date ne peut pas être dans le passé.');return}
+    if(!special&&new Date(date+'T00:00:00').getDay()!==1){erreur('La date standard doit être un lundi.');return}
+    if(sessions.some(s=>s.date===date)){erreur('Une formation en salle est déjà prévue à cette date. Choisissez une autre date.');return}
+    confirmerBtn.disabled=true;confirmerBtn.textContent='Enregistrement…';
+    try{
+      const existants=lire('participantsFormationSalle');
+      if(!Array.isArray(existants)||!Array.isArray(sessions))throw new Error('Les données enregistrées sont illisibles. Rechargez la page puis réessayez.');
+      participants.forEach(participant=>{
+        existants.push(participant);
+        sessions.push({id:crypto.randomUUID(),participantId:participant.id,prenom:participant.prenom,nom:participant.nom,agence:participant.agence,modules:participant.modules,date,autreDate:special});
+      });
+      sauver('participantsFormationSalle',existants);sauver('formationsSalleSessions',sessions);
+      fermer('choixDateFormation');fermer('formationSalle');
+      selected=new Date(date+'T12:00:00');shown=new Date(selected.getFullYear(),selected.getMonth(),1);
+      try{renderHomeCalendar()}catch(renderError){console.error('Formation enregistrée, actualisation calendrier impossible:',renderError)}
+      alert('Succès : les '+participants.length+' participants ont été enregistrés pour le '+new Intl.DateTimeFormat('fr-FR').format(new Date(date+'T12:00:00'))+'.');
+    }catch(error){
+      console.error('Erreur de validation de formation:',error);
+      confirmerBtn.disabled=false;confirmerBtn.textContent='Confirmer les '+participants.length+' participants';
+      erreur('Impossible d’enregistrer la formation : '+(error.message||'erreur inconnue')+'. Vérifiez que le navigateur autorise le stockage local puis réessayez.');
+    }
   };
   document.getElementById('fsAnnulerDate').onclick=()=>fermer('choixDateFormation');
 }
